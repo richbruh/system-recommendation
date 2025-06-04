@@ -189,7 +189,7 @@ Konten yang direkomendasikan memiliki tema fantasi serupa
 - **Cakupan Genre**: 81.25% dari total genre tersedia
   - Sistem tidak bias pada genre tertentu dan mencakup sebagian besar genre
   
-- **Rata-rata Skor Kesamaan Konten**: 0.0886
+- **Rata-rata Skor Kesamaan Konten**: 0.0840
   - Skor ini menunjukkan keseimbangan antara similaritas dan diversitas
   
 - **Kualitas Rekomendasi**: 
