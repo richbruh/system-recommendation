@@ -26,6 +26,7 @@ Webtoon telah menjadi salah satu bentuk hiburan digital yang sangat populer di s
 - Mengatasi cold-start problem
 - Memberikan rekomendasi berdasarkan karakteristik konten
 - Transparent dan dapat dijelaskan
+
 ## Data Understanding
 
 ### Sumber Data
@@ -33,7 +34,7 @@ Dataset yang digunakan dalam proyek ini adalah Webtoon Comics Dataset yang terse
 
 
 ### Informasi Dataset
-- **Jumlah Data**: 567 records  
+- **Jumlah Data**: 569 records  
 - **Kondisi Data**: 1 missing value pada kolom Writer
 - **Fitur yang Tersedia**: id, Name, Writer, Likes, Genre, Rating, Subscribers, Summary, Update, Reading Link
 
@@ -168,17 +169,10 @@ Konten yang direkomendasikan memiliki tema fantasi serupa
 ### Metrik Evaluasi
 
 #### Content-Based Filtering:
-1. **Precision@K**: Proporsi item relevan dalam top-K rekomendasi
-   - **Formula**: `Precision@K = (Relevant items in top-K) / K`
-   
-2. **Diversitas Genre**: Rata-rata jumlah genre unik dalam rekomendasi
-   - **Formula**: `Diversitas = (1/N) × Σᵢ|Gᵢ|`
-   
-3. **Coverage Genre**: Persentase genre yang tercakup
-   - **Formula**: `Coverage = (|G_rec| / |G_total|) × 100%`
-   
-4. **Novelty**: Tingkat kebaruan rekomendasi
-   - **Formula**: `Novelty = -log₂(popularity_score)`
+1. **Diversitas Genre**: Rata-rata jumlah genre unik dalam rekomendasi
+2. **Coverage Genre**: Persentase genre yang tercakup
+3. **Kualitas Rekomendasi**: Rating rata-rata dan konsistensi
+4. **Rata-rata Skor Kesamaan Konten**: Tingkat kesamaan dalam rekomendasi
 
 ### Hasil Evaluasi
 
