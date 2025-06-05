@@ -80,9 +80,9 @@ Dataset ini memiliki beberapa variabel penting yang dapat digunakan untuk sistem
 
 ### Teknik yang Digunakan
 
-1. **Data Cleaning** - Untuk mengatasi nilai kosong (missing values) dan memastikan kosnistensi data
+1. **Data Cleaning** - Mengatasi missing values dan memastikan konsistensi data
 2. **Feature Engineering** - Menciptakan representasi yang kaya untuk konten webtoon
-3. **Text Preprocessing** - Menormalisasi dan membersihkan teks untuk analisis yang lebih baik
+3. **Text Preprocessing** - Membersihkan dan mempersiapkan data teks untuk analisis
 4. **Writer Style Profiling** - Mengidentifikasi pola genre dari penulis untuk memperkaya fitur
 5. **TF-IDF Vectorization** - Mengubah fitur teks menjadi representasi vektor numerik
 6. **Similarity Matrix Calculation** - Mengukur kesamaan antar item untuk rekomendasi
@@ -90,30 +90,31 @@ Dataset ini memiliki beberapa variabel penting yang dapat digunakan untuk sistem
 
 ### Proses Preparation
 1. **Data Cleaning**
-- Penanganan Missing Values:
-    - Kolom Writer diisi dengan 'Unknown Writer'
-    - Kolom Genre diisi dengan 'Uncategorized'
-    - Kolom Subscribers_Numeric diisi dengan 0
--  Standarisasi Format Numerik:
-    - Konversi nilai Likes dan Subscribers dari format string ('M', 'K') ke nilai numerik (misal: "5.4M" → 5,400,000)
+   - Penanganan Missing Values:
+     - Kolom Writer diisi dengan 'Unknown Writer' (1 missing value)
+     - Kolom Subscribers_Numeric diisi dengan 0 untuk nilai kosong hasil konversi
+   - Standarisasi Format Numerik:
+     - Konversi nilai Likes dan Subscribers dari format string ('M', 'K') ke nilai numerik (misal: "5.4M" → 5,400,000)
 
 2. **Text Preprocessing**
-df['Summary_Clean'] = df['Summary'].fillna('').apply(lambda x: re.sub(r'[^\w\s]', ' ', x.lower()))
+   ```python
+   df['Summary_Clean'] = df['Summary'].fillna('').apply(lambda x: re.sub(r'[^\w\s]', ' ', x.lower()))
+   ```
 
-3. **Feature Engineering** 
+3. **Feature Engineering**
+   ```python
+   df['Content_Features'] = df['Genre'] + ' ' + df['Writer'] + ' ' + df['Summary_Clean']
+   ```
 
-df['Content_Features'] = df['Genre'] + ' ' + df['Writer'] + ' ' + df['Summary_Clean']
+4. **Writer Style Profiling**
+   ```python
+   writer_genre_mapping = df.groupby('Writer')['Genre'].agg(lambda x: ' '.join(x)).to_dict()
+   df['Writer_Style'] = df['Writer'].map(writer_genre_mapping)
+   ```
 
-4. Vectorization dan Similarity Matrix
-- **TF-IDF Matrix Shape**: (569, 6118) - 569 webtoon dengan 6118 unique terms
-- **Cosine Similarity Matrix**: (569, 569) untuk mengukur kesamaan antar webtoon
-
-5. Simulasi Data User-Item
-- **Jumlah Pengguna**: 50 pengguna simulasi
-- **Total Rating**: 979 rating dari 50 pengguna untuk 569 webtoon
-- **User-Item Matrix Shape**: (50, 466)
-- **Train-Test Split**: 783 training data, 196 testing data
-
+5. **TF-IDF Vectorization dan Similarity Matrix**
+   - **TF-IDF Matrix Shape**: (569, 6118) - 569 webtoon dengan 6118 unique terms
+   - **Cosine Similarity Matrix**: (569, 569) untuk mengukur kesamaan antar webtoon
 
 writer_genre_mapping = df.groupby('Writer')['Genre'].agg(lambda x: ' '.join(x)).to_dict()
 df['Writer_Style'] = df['Writer'].map(writer_genre_mapping)
@@ -135,17 +136,77 @@ df['Writer_Style'] = df['Writer'].map(writer_genre_mapping)
 3. Mengurutkan berdasarkan skor tertinggi (tidak termasuk diri sendiri)
 4. Mengambil 10 webtoon teratas
 
-**Hasil Rekomendasi untuk "Tower of God":**
+### Output Top-N Rekomendasi
 
-Rekomendasi teratas: "Tales of Greed" (Genre: Thriller, Similarity Score: 0.165)
-Mayoritas rekomendasi dari genre Thriller, Action, dan Fantasy
-Rata-rata rating rekomendasi: 9.35
-Hasil Rekomendasi untuk "Omniscient Reader":
+#### **Hasil Rekomendasi untuk "Tower of God":**
 
-Rekomendasi teratas: "The First Night With the Duke" (Genre: Fantasy, Similarity Score: 0.156)
-Mayoritas rekomendasi dari genre Fantasy dan Romance
-Konten yang direkomendasikan memiliki tema fantasi serupa
+| Rank | Name | Genre | Rating | Similarity Score |
+|------|------|-------|---------|------------------|
+| 1. | Tales of Greed | Thriller | 9.33 | 0.164690 |
+| 2. | Money Game | Thriller | 8.51 | 0.084385 |
+| 3. | Ctrl+Z | Thriller | 7.81 | 0.083716 |
+| 4. | She Bites! | Slice of life | 9.70 | 0.062107 |
+| 5. | Witch Creek Road | Horror | 9.39 | 0.055339 |
+| 6. | Warrior of the Wild | Action | 9.46 | 0.052517 |
+| 7. | Tales of Sarimin the Jinn | Action | 9.54 | 0.048883 |
+| 8. | Cape of Spirits | Action | 9.50 | 0.048561 |
+| 9. | Athena Complex | Fantasy | 9.54 | 0.048340 |
+| 10. | My Dear Cold-Blooded King | Romance | 9.72 | 0.046575 |
 
+**Analisis**: 
+- Rating rata-rata: 9.16
+- Genre unik: 6 dari 10 rekomendasi
+- Genre yang muncul: Thriller, Slice of life, Horror, Action, Fantasy, Romance
+- Similarity score: 0.046575 - 0.164690
+
+#### **Hasil Rekomendasi untuk "Omniscient Reader":**
+
+| Rank | Name | Genre | Rating | Similarity Score |
+|------|------|-------|---------|------------------|
+| 1. | The First Night With the Duke | Fantasy | 9.63 | 0.155865 |
+| 2. | Happily Ever Afterwards | Fantasy | 9.65 | 0.143122 |
+| 3. | Half-Ghost | Romance | 9.74 | 0.132341 |
+| 4. | Elena | Horror | 9.52 | 0.125274 |
+| 5. | Good Luck, Hero! | Fantasy | 9.58 | 0.122048 |
+| 6. | Surviving Romance | Horror | 9.81 | 0.118337 |
+| 7. | How to Survive a Romance Fantasy | Fantasy | 9.41 | 0.101325 |
+| 8. | The Male Lead's Girl Friend | Romance | 9.33 | 0.100728 |
+| 9. | Tricked into Becoming the Heroine's Stepmother | Fantasy | 9.61 | 0.096719 |
+| 10. | Back to You | Drama | 9.70 | 0.094367 |
+
+**Analisis**:
+- Rating rata-rata: 9.60
+- Genre unik: 5 dari 10 rekomendasi
+- Genre yang muncul: Fantasy, Romance, Horror, Drama
+- Similarity score: 0.094367 - 0.155865
+
+#### **Hasil Rekomendasi untuk "Eleceed":**
+
+| Rank | Name | Genre | Rating | Similarity Score |
+|------|------|-------|---------|------------------|
+| 1. | Fluffy Boyfriend | Supernatural | 9.13 | 0.142221 |
+| 2. | Saphie: The One-Eyed Cat | Slice of life | 9.80 | 0.111078 |
+| 3. | Watermelon | Fantasy | 9.80 | 0.097568 |
+| 4. | Meow Man | Comedy | 9.70 | 0.097199 |
+| 5. | Meow Rangers | Comedy | 9.34 | 0.092227 |
+| 6. | I Get Stronger the More I Eat | Action | 8.45 | 0.082215 |
+| 7. | UnderPrin | Supernatural | 9.28 | 0.079013 |
+| 8. | My Deepest Secret | Thriller | 9.68 | 0.077729 |
+| 9. | WEBTOON Now | Informative | 9.25 | 0.076889 |
+| 10. | Noblesse | Action | 9.77 | 0.074212 |
+
+**Analisis**:
+- Rating rata-rata: 9.42
+- Genre unik: 8 dari 10 rekomendasi
+- Genre yang muncul: Supernatural, Slice of life, Fantasy, Comedy, Action, Thriller, Informative
+- Similarity score: 0.074212 - 0.142221
+
+### Insight dari Output Rekomendasi:
+
+1. **Konsistensi Kualitas**: Rating rata-rata semua rekomendasi > 9.0 menunjukkan sistem berhasil merekomendasikan webtoon berkualitas tinggi
+2. **Diversitas Genre**: Setiap rekomendasi menampilkan 5-8 genre unik, menunjukkan kemampuan sistem dalam memberikan variasi
+3. **Similarity Score**: Rentang 0.07-0.17 menunjukkan keseimbangan antara relevansi dan diversitas
+4. **Adaptabilitas**: Sistem dapat merekomendasikan berbagai jenis webtoon berdasarkan karakteristik input yang berbeda
 ### Kelebihan dan Kekurangan
 
 #### Content-Based Filtering:
